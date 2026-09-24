@@ -1171,286 +1171,6 @@ function Dashboard({
     </div>
   );
 }
-{
-  const [r, setR] =
-    useState([]);
-
-  const [q, setQ] =
-    useState(null);
-
-
-  const load = () =>
-    api("/api/roadmap")
-      .then((d) =>
-        setR(d.roadmap)
-      );
-
-
-  useEffect(() => {
-    load();
-  }, []);
-
-
-  const ts =
-    r.flatMap(
-      (x) => x.tasks
-    );
-
-
-  const done =
-    ts.filter(
-      (x) => x.done
-    ).length;
-
-
-  const weak =
-    Object.entries(
-      user.skills || {}
-    ).sort(
-      (a, b) =>
-        a[1] - b[1]
-    )[0];
-
-
-  const today =
-    ts.find(
-      (x) => !x.done
-    );
-
-
-  async function complete() {
-    if (!today) return;
-
-    const d =
-      await api(
-        `/api/tasks/${today.id}/complete`,
-        {
-          method: "POST",
-        }
-      );
-
-    setUser(d.user);
-
-    load();
-  }
-
-
-  return (
-    <div className="page">
-
-      <section className="hero">
-
-        <div>
-
-          <small>
-            ✦ PERSONALIZED FOR YOU
-          </small>
-
-          <h2>
-            Build skills that
-            <br />
-            <em>
-              actually stick.
-            </em>
-          </h2>
-
-          <p>
-            Mentor AI verifies learning instead of
-            blindly trusting task completion.
-          </p>
-
-          <button
-            className="primary"
-            onClick={() =>
-              go("roadmap")
-            }
-          >
-            Continue learning
-            <ArrowRight size={15} />
-          </button>
-
-        </div>
-
-
-        <div className="orb">
-          <BrainCircuit
-            size={58}
-          />
-        </div>
-
-      </section>
-
-
-      <div className="stats">
-
-        <Stat
-          i={<Target />}
-          l="Progress"
-          v={`${Math.round(
-            (done /
-              (ts.length || 1)) *
-              100
-          )}%`}
-        />
-
-
-        <Stat
-          i={<Zap />}
-          l="XP"
-          v={user.xp || 0}
-        />
-
-
-        <Stat
-          i={<Clock3 />}
-          l="Daily goal"
-          v={`${user.dailyMinutes || 60}m`}
-        />
-
-
-        <Stat
-          i={<Flame />}
-          l="Streak"
-          v={user.streak || 0}
-        />
-
-      </div>
-
-
-      <div className="two">
-
-        <section className="card">
-
-          <small>
-            TODAY'S MISSION
-          </small>
-
-          <h3>
-            {today?.title ||
-              "All caught up 🎉"}
-          </h3>
-
-          <p>
-            {today
-              ? `${today.minutes} min • ${today.skill} • ${today.type}`
-              : "Complete a verification challenge."}
-          </p>
-
-
-          <div className="actions">
-
-            {today && (
-              <button
-                className="primary"
-                onClick={complete}
-              >
-                <CheckCircle2
-                  size={15}
-                />
-                Mark complete
-              </button>
-            )}
-
-
-            <button
-              className="secondary"
-              onClick={() =>
-                setQ(
-                  today?.skill ||
-                    weak?.[0]
-                )
-              }
-            >
-              Verify knowledge
-            </button>
-
-          </div>
-
-        </section>
-
-
-        <section className="card">
-
-          <small>
-            MENTOR INSIGHT
-          </small>
-
-          <h3>
-            Your next focus
-          </h3>
-
-          {weak ? (
-            <>
-              <p>
-                <b>
-                  {weak[0]}
-                </b>{" "}
-                is your lowest demonstrated
-                skill at{" "}
-                <b>
-                  {weak[1]}%
-                </b>.
-              </p>
-
-              <button
-                className="link"
-                onClick={() =>
-                  setQ(weak[0])
-                }
-              >
-                Verify {weak[0]}
-                <ChevronRight
-                  size={13}
-                />
-              </button>
-            </>
-          ) : (
-            <p>
-              Complete a verification
-              to build your skill map.
-            </p>
-          )}
-
-        </section>
-
-      </div>
-
-
-      <section className="card">
-
-        <small>
-          SKILL PULSE
-        </small>
-
-        <h3>
-          How you're progressing
-        </h3>
-
-        <Bars
-          s={
-            user.skills || {}
-          }
-        />
-
-      </section>
-
-
-      {q && (
-        <Quiz
-          skill={q}
-          close={() =>
-            setQ(null)
-          }
-          done={(d) => {
-            setUser(d.user);
-            setQ(null);
-          }}
-        />
-      )}
-
-    </div>
-  );
-}
 
 
 /* =====================================================
@@ -1924,10 +1644,201 @@ function Quiz({
 
 
 /* =====================================================
+   VIRTUAL AVATAR COMPONENT
+===================================================== */
+
+function VirtualAvatar({ state = "idle", avatarType = "aria", setAvatarType }) {
+  const [blink, setBlink] = useState(false);
+  const [mouthPhase, setMouthPhase] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setBlink(true);
+      setTimeout(() => setBlink(false), 200);
+    }, 3500 + Math.random() * 2000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    if (state === "speaking") {
+      const interval = setInterval(() => {
+        setMouthPhase((prev) => (prev + 1) % 4);
+      }, 120);
+      return () => clearInterval(interval);
+    }
+  }, [state]);
+
+  const personas = {
+    aria: {
+      name: "Aria",
+      role: "Cyber AI Mentor",
+      primaryColor: "#7258f5",
+      accentColor: "#00f2fe",
+      bgGradient: "radial-gradient(circle, #2d2060 0%, #151326 100%)",
+      eyeColor: "#00f2fe"
+    },
+    atlas: {
+      name: "Atlas",
+      role: "Sage Academic",
+      primaryColor: "#f59e0b",
+      accentColor: "#fef08a",
+      bgGradient: "radial-gradient(circle, #451a03 0%, #180902 100%)",
+      eyeColor: "#fbbf24"
+    },
+    spark: {
+      name: "Spark",
+      role: "Coding Buddy",
+      primaryColor: "#10b981",
+      accentColor: "#a7f3d0",
+      bgGradient: "radial-gradient(circle, #064e3b 0%, #022c22 100%)",
+      eyeColor: "#34d399"
+    }
+  };
+
+  const persona = personas[avatarType] || personas.aria;
+
+  const getStatusText = () => {
+    switch (state) {
+      case "listening": return "Listening to you...";
+      case "thinking": return "Analyzing response...";
+      case "speaking": return "Explaining concept...";
+      default: return `${persona.name} • Ready to help`;
+    }
+  };
+
+  return (
+    <div className="virtualAvatarContainer">
+      <div
+        className={`avatarCanvasCard avatarState-${state}`}
+        style={{ background: persona.bgGradient }}
+      >
+        <div
+          className={`avatarGlowRing ${state}`}
+          style={{ borderColor: persona.accentColor }}
+        />
+
+        {state === "speaking" && (
+          <div className="soundWaves">
+            <span style={{ borderColor: persona.accentColor }} />
+            <span style={{ borderColor: persona.primaryColor }} />
+            <span style={{ borderColor: persona.accentColor }} />
+          </div>
+        )}
+
+        <div className="avatarHeadWrapper">
+          <svg viewBox="0 0 200 200" className="avatarSvg">
+            <defs>
+              <linearGradient id={`grad-${avatarType}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor={persona.primaryColor} />
+                <stop offset="100%" stopColor={persona.accentColor} />
+              </linearGradient>
+              <filter id="glow">
+                <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                <feMerge>
+                  <feMergeNode in="coloredBlur"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
+            </defs>
+
+            <path
+              d="M 60 160 Q 100 130 140 160 L 160 200 L 40 200 Z"
+              fill={`url(#grad-${avatarType})`}
+              opacity="0.75"
+            />
+
+            <rect
+              x="50"
+              y="40"
+              width="100"
+              height="100"
+              rx="30"
+              fill="#1e1b2e"
+              stroke={`url(#grad-${avatarType})`}
+              strokeWidth="3"
+            />
+
+            <circle cx="100" cy="25" r="7" fill={persona.accentColor} filter="url(#glow)" />
+            <line x1="100" y1="25" x2="100" y2="40" stroke={persona.primaryColor} strokeWidth="3" />
+
+            <rect x="38" y="70" width="12" height="30" rx="5" fill={persona.primaryColor} />
+            <rect x="150" y="70" width="12" height="30" rx="5" fill={persona.primaryColor} />
+
+            <rect x="62" y="55" width="76" height="70" rx="16" fill="#0c0a17" stroke="#ffffff22" strokeWidth="1" />
+
+            {state === "thinking" ? (
+              <g filter="url(#glow)">
+                <circle cx="82" cy="82" r="10" fill="none" stroke={persona.accentColor} strokeWidth="3" strokeDasharray="10 5" className="spinEye" />
+                <circle cx="118" cy="82" r="10" fill="none" stroke={persona.accentColor} strokeWidth="3" strokeDasharray="10 5" className="spinEyeReverse" />
+              </g>
+            ) : blink ? (
+              <g stroke={persona.eyeColor} strokeWidth="4" strokeLinecap="round">
+                <line x1="74" y1="82" x2="90" y2="82" />
+                <line x1="110" y1="82" x2="126" y2="82" />
+              </g>
+            ) : (
+              <g fill={persona.eyeColor} filter="url(#glow)">
+                <circle cx="82" cy="82" r={state === "listening" ? "10" : "8"} />
+                <circle cx="118" cy="82" r={state === "listening" ? "10" : "8"} />
+                <circle cx="84" cy="80" r="3" fill="#ffffff" />
+                <circle cx="120" cy="80" r="3" fill="#ffffff" />
+              </g>
+            )}
+
+            {state === "speaking" ? (
+              <rect
+                x="85"
+                y="105"
+                width="30"
+                height={6 + mouthPhase * 4}
+                rx="4"
+                fill={persona.accentColor}
+                filter="url(#glow)"
+              />
+            ) : state === "listening" ? (
+              <circle cx="100" cy="108" r="5" fill={persona.primaryColor} />
+            ) : state === "thinking" ? (
+              <line x1="88" y1="108" x2="112" y2="108" stroke={persona.primaryColor} strokeWidth="3" strokeLinecap="round" />
+            ) : (
+              <path d="M 85 105 Q 100 115 115 105" fill="none" stroke={persona.primaryColor} strokeWidth="3" strokeLinecap="round" />
+            )}
+          </svg>
+        </div>
+
+        <div className="avatarStatusPill">
+          <span className={`statusDot ${state}`} />
+          <span className="statusText">{getStatusText()}</span>
+        </div>
+      </div>
+
+      <div className="avatarToolbar">
+        <div className="personaSelector">
+          <small>VIRTUAL AVATAR:</small>
+          <div className="personaButtons">
+            {Object.keys(personas).map((key) => (
+              <button
+                key={key}
+                className={avatarType === key ? "activePersona" : ""}
+                onClick={() => setAvatarType && setAvatarType(key)}
+              >
+                {personas[key].name} ({personas[key].role})
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+/* =====================================================
    AI MENTOR
 ===================================================== */
 
 function Mentor() {
+  const [avatarType, setAvatarType] = useState("aria");
+
   const [m, setM] =
     useState([
       {
@@ -1938,17 +1849,24 @@ function Mentor() {
       },
     ]);
 
-
   const [x, setX] =
     useState("");
-
 
   const [loading, setLoading] =
     useState(false);
 
-
   const [listening, setListening] =
     useState(false);
+
+  const lastMsg = m[m.length - 1];
+  const isSpeaking = lastMsg && lastMsg.r === "ai" && (lastMsg.streaming || loading);
+  const avatarState = listening
+    ? "listening"
+    : loading && !lastMsg?.t
+    ? "thinking"
+    : isSpeaking
+    ? "speaking"
+    : "idle";
 
 
   const recognitionRef =
@@ -2311,6 +2229,17 @@ function Mentor() {
         </article>
 
       </section>
+
+
+      {/* =====================================
+          VIRTUAL AVATAR DISPLAY
+      ===================================== */}
+
+      <VirtualAvatar
+        state={avatarState}
+        avatarType={avatarType}
+        setAvatarType={setAvatarType}
+      />
 
 
       {/* =====================================
