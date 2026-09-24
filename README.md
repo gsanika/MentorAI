@@ -1,32 +1,42 @@
-# Mentor AI — Fully Functional
+# MentorAI — AI-Powered Personal Learning & Career Mentor
 
-Full-stack adaptive learning platform for hackathon demo.
+A full-stack adaptive learning platform designed to help students set goals, follow personalized learning roadmaps, build skills, stay focused, and continuously improve through AI-powered guidance and knowledge verification.
 
-## Functional features
-- Register/login
-- Persistent local JSON database
-- Dashboard
-- Goal/profile setup
-- Learning roadmap
-- Task completion + XP
-- Knowledge verification quizzes
-- Adaptive skill scores
-- Weak-skill recommendations
-- AI Mentor chat without an API key
-- Focus/Pomodoro timer
-- Notes CRUD
-- Activity history
-- Achievements
-- REST API
+## 🚀 Features
 
-## Run
-```bash
-npm install
-npm --prefix client install
-npm --prefix server install
-npm run dev
-```
-Frontend: http://localhost:5173
-Backend: http://localhost:5000
+- 🔐 Register/Login
+- 👤 Goal & Profile Setup
+- 📊 Personalized Dashboard
+- 🗺️ Learning Roadmap
+- ✅ Task Completion & XP
+- 🧠 Knowledge Verification Quizzes
+- 📈 Adaptive Skill Scores
+- 🎯 Weak-Skill Recommendations
+- 🤖 AI Mentor Chat without an API Key
+- ⏱️ Focus / Pomodoro Timer
+- 📝 Notes CRUD
+- 📜 Activity History
+- 🏆 Achievements & XP
+- 🔌 REST API
+- 💾 Persistent Local JSON Database
 
-Demo account: demo@mentorai.local / demo123
+## 🧠 How MentorAI Works
+
+```text
+Set Goal
+   ↓
+Create Learning Roadmap
+   ↓
+Complete Learning Tasks
+   ↓
+Focus & Learn
+   ↓
+Verify Knowledge
+   ↓
+Update Skill Score
+   ↓
+Identify Weak Skills
+   ↓
+Recommend Next Action
+   ↓
+Track Progress
